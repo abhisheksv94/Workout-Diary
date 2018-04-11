@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="false">
+        <layer-list>
+            <!-- SHADOW -->
+            <item>
+                <shape>
+                    <solid android:color="#bbb"/>
+                    <corners android:radius="19dp"/>
+                </shape>
+            </item>
+            <!-- BUTTON
+              android:right="5px" to make it round-->
+            <item>
+                <shape>
+                    <padding android:bottom="5dp"/>
+                    <gradient
+                        android:startColor="#2471b7"
+                        android:endColor="#163969"
+                        android:angle="270" />
+                    <corners
+                        android:radius="20dp"/>
+                    <padding
+                        android:left="20dp"
+                        android:right="20dp"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+    <item android:state_pressed="true">
+        <layer-list>
+            <!-- SHADOW -->
+            <item>
+                <shape>
+                    <solid android:color="#102746"/>
+                    <corners android:radius="20dp"/>
+
+                </shape>
+            </item>
+            <!-- BUTTON -->
+            <item android:bottom="5px">
+                <shape>
+                    <padding android:bottom="5dp"/>
+                    <gradient
+                        android:startColor="#1c4985"
+                        android:endColor="#163969"
+                        android:angle="270" />
+                    <corners
+                        android:radius="19dp"/>
+                    <padding
+                        android:left="20dp"
+                        android:top="10dp"
+                        android:right="15dp"
+                        android:bottom="0dp"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>

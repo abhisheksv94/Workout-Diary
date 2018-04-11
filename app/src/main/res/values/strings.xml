@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Workout Log</string>
+    <string name="instructionHeader">The instructions on how to use this app are as follows:</string>
+    <string name="instruction">\n
+        1)  Swiping to the left enables the navigation list to appear\n\n
+        2)  The navigation list contains the exercise names\n\n
+        3)  To add in a new exercise, click the blue button with the \'\+\' image\n\n
+        4)  In the new layout that appears enter the exercise name,
+        select the type of exercise and click the Done button to add a new exercise\n\n
+        5)  Once you click done, the exercise appears in the layout\n\n
+        6)  On clicking the exercise name, a new value can be added by clicking the blue button at the bottom of the
+        screen \n\n
+        7)  On clicking a value, the entries can be updated\n\n
+        8)  On clicking the delete icon button next to the date card, the exercise is deleted\n\n
+        9)  On clicking the \'\+\' icon to the right of the date a new value can be added\n\n
+        10)  Values can be individually deleted by long clicking on the value\n\n
+    </string>
+    <string name="drawer_open">Open Navigation Drawer</string>
+    <string name="drawer_close">Close Navigation Drawer</string>
+    <string name="sharedPreferenceBoolean">com.example.abhishek.workoutlog.unit_Boolean</string>
+    <string name="graphTextView">No Data Provided: Go to Settings and enable at least one of the graph options</string>
+    <string-array name="modes">
+        <item>Linear</item>
+        <item>Cubic</item>
+        <item>Stepped</item>
+        <item>Horizontal</item>
+    </string-array>
+    <string name="saveState">com.example.abhishek.workoutLog.onFragment</string>
+    <string name="StopWatch_start">Start</string>
+    <string name="StopWatch_pause">Pause</string>
+    <string name="StopWatch_resume">Resume</string>
+    <string name="StopWatch_reset">Reset</string>
+    <string name="Clock"><u>Stopwatch</u></string>
+</resources>

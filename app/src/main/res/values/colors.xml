@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#1976D2</color>
+    <color name="colorPrimaryDark">#003366</color>
+    <color name="colorAccent">#1976D2</color>
+    <color name="fabBackground">#023fd2</color>
+    <color name="white">#fff</color>
+    <color name="gray">#A9A9A9</color>
+    <color name="sherp_blue">#013243</color>
+    <color name="jacksons_purple">#1f3a93</color>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="Cardio" type="id"/>
+    <item name="Strength" type="id"/>
+    <item name="workoutGraph" type="id"/>
+    <item name="settings" type="id"/>
+    <item name="graph_switch_unit" type="id"/>
+    <item name="instructions" type="id"/>
+    <item name="preference" type="id"/>
+</resources>

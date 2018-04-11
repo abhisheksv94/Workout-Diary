@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Cardio Settings">
+        <CheckBoxPreference
+            android:title="Distance"
+            android:key="distance"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:title="Time"
+            android:key="time"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:title="Speed"
+            android:key="speed"
+            android:defaultValue="false"/>
+        <CheckBoxPreference
+            android:title="Calories"
+            android:key="calories"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:title="Incline"
+            android:key="incline"
+            android:defaultValue="false"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Graph Settings">
+        <ListPreference android:title="Line Graph Modes"
+            android:key="modes"
+            android:entries="@array/modes"
+            android:entryValues="@array/modes"
+            android:defaultValue="Linear" />
+        <CheckBoxPreference android:title="Calories"
+            android:key="graph_calories"
+            android:dependency="calories"
+            android:defaultValue="true"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Unit Settings">
+        <CheckBoxPreference android:title="Imperial System Units"
+            android:key="imperial"
+            android:defaultValue="true"
+            android:summary="Pounds, Miles"/>
+        <CheckBoxPreference android:title="Metric System Units"
+            android:key="metric"
+            android:defaultValue="false"
+            android:summary="Kilograms, Kilometers"/>
+    </PreferenceCategory>
+</PreferenceScreen>
