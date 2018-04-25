@@ -83,9 +83,9 @@
 
 <p align="center"><img width="296" alt="14" src="https://user-images.githubusercontent.com/19368144/39249284-52748e0c-486c-11e8-94d6-cc904afa8088.png"></p>
 
-- The features are: 
+### The features are: 
 
-  1. Seeing Progress 
+ 1. Seeing Progress 
   - The user can also see the progress they've made via a graph. 
   - On clicking the menu option, the user is navigated to a graph which shows the data points for several workouts as a whole, not each data value so that users can track progress between days. 
 
