@@ -16,11 +16,11 @@
 <p align='center'><img width="294" alt="02" src="https://user-images.githubusercontent.com/19368144/39248227-80da246c-4869-11e8-94a1-9e10129f7952.png"></p>
 
 ## Adding New Exercises
-- On Clicking the Floating Action Button in the Navigation Drawer (the blue button with the '+' symbol) a new exercise can be added.
+- On clicking the Floating Action Button in the Navigation Drawer (the blue button with the '+' symbol) a new exercise can be added.
+- On clicking the button, a dialog appears which enables the user to enter the name of the exercise as well as whether the exercise is for strength training or cardio.
 
 <p align='center'><img width="291" alt="03" src="https://user-images.githubusercontent.com/19368144/39248323-c1d896d8-4869-11e8-9cb8-bd657c98f2b5.png"></p>
 
-- On clicking the button, a dialog appears which enables the user to enter the name of the exercise as well as whether the exercise is for strength training or cardio.
 ## Adding several Exercises to the Navigation Drawer
 - This screen shows the results after adding an exercise belong to each category: Strength training and Cardio
 
