@@ -1,10 +1,10 @@
 # Workout Log App
 ## Contents
-1. [Initial Screen](https://github.com/abhisheksv94/Workout-Diary/new/master#initial-screen)
-2. [The Navigation Drawer](https://github.com/abhisheksv94/Workout-Diary/new/master#the-navigation-drawer)
-3. [Adding New Exercises](https://github.com/abhisheksv94/Workout-Diary/new/master#adding-new-exercises)
-4. [Adding Data To Exercises](https://github.com/abhisheksv94/Workout-Diary/new/master#adding-data-to-exercises)
-5. [The Menu](https://github.com/abhisheksv94/Workout-Diary/new/master#the-menu)
+1. [Initial Screen](https://github.com/abhisheksv94/Workout-Diary#initial-screen)
+2. [The Navigation Drawer](https://github.com/abhisheksv94/Workout-Diary#the-navigation-drawer)
+3. [Adding New Exercises](https://github.com/abhisheksv94/Workout-Diary#adding-new-exercises)
+4. [Adding Data To Exercises](https://github.com/abhisheksv94/Workout-Diary#adding-data-to-exercises)
+5. [The Menu](https://github.com/abhisheksv94/Workout-Diary#the-menu)
 ## Initial Screen
 - When the app is initially installed, the first screen that the user sees is the instructions page which contains detailed instructions on how to use the app
 
