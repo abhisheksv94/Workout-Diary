@@ -31,4 +31,13 @@
     <string name="StopWatch_resume">Resume</string>
     <string name="StopWatch_reset">Reset</string>
     <string name="Clock"><u>Stopwatch</u></string>
+    <string name="Distance">Distance:</string>
+    <string name="hrs">h:</string>
+    <string name="min">m:</string>
+    <string name="sec">s:</string>
+    <string name="Speed">Speed:</string>
+    <string name="Calories">Calories:</string>
+    <string name="Incline">Incline:</string>
+    <string name="Weight">Weight:</string>
+    <string name="Reps">Reps:</string>
 </resources>

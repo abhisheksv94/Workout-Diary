@@ -107,13 +107,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,new Settings()).
                         addToBackStack("Settings").commit();
             }
-            else{
+            else if(exerciseList.size()>0||cardioList.size()>0){
                 if(preferences.getString("fragmentType","").equals("strength")){
-                    onNavigationItemSelected(nav.getMenu().getItem(exerciseList.indexOf(name)+1));
+                    if(exerciseList.contains(name))
+                        onNavigationItemSelected(nav.getMenu().getItem(exerciseList.indexOf(name)+1));
+                    else
+                        onNavigationItemSelected(nav.getMenu().getItem(1));
                 }
                 else{
-                    if(cardioList.indexOf(name)!=-1)
+                    if(cardioList.contains(name))
                         onNavigationItemSelected(cardioNav.getMenu().getItem(cardioList.indexOf(name)+1));
+                    else
+                        onNavigationItemSelected(cardioNav.getMenu().getItem(1));
                 }
             }
         }
@@ -125,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private int refreshMenu(String s,boolean iscardio){
         Menu menu;int index;
+
         if(!iscardio) {
             menu = nav.getMenu();
             int len = menu.size();
@@ -266,6 +272,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
+        if(exerciseList.size()==0&&cardioList.size()==0) return false;
         MenuInflater inflater=getMenuInflater();
         inflater.inflate(R.menu.menu,menu);
         menu.add(0,R.id.workoutGraph,0,"See Progress");
@@ -294,7 +301,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             manager.beginTransaction().replace(R.id.frameLayout,fragment,"Settings").addToBackStack("Settings").commit();
             return true;
         }
-        setTitle(item.getTitle());
         FrameLayout f = findViewById(R.id.frameLayout);
         f.removeAllViews();Fragment fragment;
         String exercise=item.getTitle().toString();

@@ -46,6 +46,7 @@ public class cardioData extends SQLiteOpenHelper {
         db.execSQL("drop table if exists "+table_name);
         onCreate(db);
     }
+
     /*
     insert the given cardio exercise into the database
     input: exercise name, date, distance, time taken, speed, calories burnt, incline
@@ -60,6 +61,7 @@ public class cardioData extends SQLiteOpenHelper {
         db.close();
         return id;
     }
+
     //delete the database entry
     //input: id of the row to be deleted
     //output: if 1 row has been deleted or not

@@ -22,6 +22,7 @@ public class Settings extends PreferenceFragmentCompat implements Preference.OnP
         pref1.setOnPreferenceChangeListener(this);pref2.setOnPreferenceChangeListener(this);
         Preference cal=findPreference("calories");
         cal.setOnPreferenceChangeListener(this);
+        getActivity().setTitle("Settings");
     }
 
     @Override

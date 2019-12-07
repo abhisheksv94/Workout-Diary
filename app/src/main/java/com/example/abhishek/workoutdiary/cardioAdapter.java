@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.os.SystemClock;
+import android.support.annotation.Px;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +24,7 @@ import android.text.method.DigitsKeyListener;
 import android.text.method.KeyListener;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -51,14 +53,13 @@ public class cardioAdapter extends RecyclerView.Adapter<cardioAdapter.cardioView
     View.OnLongClickListener{
 
     class cardioViewHolder extends RecyclerView.ViewHolder {
-        ImageButton insert,delete,clock;//insert and delete a value and the stopwatch button
+        ImageButton insert,delete;//insert and delete a value
         Button dateName;//date text
         LinearLayout valueHolder;//contains all the values as entered by the user
         cardioViewHolder(View itemView) {
             super(itemView);
             insert=itemView.findViewById(R.id.insert);
             delete=itemView.findViewById(R.id.delete);
-            clock=itemView.findViewById(R.id.clock);
             dateName=itemView.findViewById(R.id.date);
             valueHolder=itemView.findViewById(R.id.values);
         }
@@ -67,21 +68,11 @@ public class cardioAdapter extends RecyclerView.Adapter<cardioAdapter.cardioView
     private RecyclerView recyclerView;
     private DisplayMetrics metrics;
     private cardioExercise exercise;
-    private Chronometer timer;
-    private Button start,pause;
-    private boolean ticking=false,isRegistered=false;
-    private long timeDifference=0;
-    private int Notification_ID=100;
-    private PopupWindow window;
-    private NotificationManager manager;
-    private Notification.Builder builder;
-    private RemoteViews remoteViews;
     cardioAdapter(Context context,cardioExercise exercise, RecyclerView view, DisplayMetrics metrics){
         this.context=context;
         this.exercise=exercise;
         this.recyclerView=view;
         this.metrics=metrics;
-        manager=context.getSystemService(NotificationManager.class);
     }
 
     @Override
@@ -97,7 +88,6 @@ public class cardioAdapter extends RecyclerView.Adapter<cardioAdapter.cardioView
         holder.dateName.setText(date);
         holder.insert.setOnClickListener(this);
         holder.delete.setOnClickListener(this);
-        holder.clock.setOnClickListener(this);
         final LinearLayout ll=holder.valueHolder;
         if(ll.getChildCount()>0)
             ll.removeAllViews();//in case the view has been recycled and the previous views are still present
@@ -147,7 +137,21 @@ public class cardioAdapter extends RecyclerView.Adapter<cardioAdapter.cardioView
             //on clicking the 'done' button
             builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
                 @Override
+                public void onClick(DialogInterface dialog, int which) {}
+            });
+            builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            final AlertDialog alertDialog=builder.create();
+            alertDialog.show();
+            Button done=alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            done.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Boolean error=false;
                     String distance=e.getText().toString();
                     if(distance.length()==0)distance="0";
                     String hrs=e2.getText().toString();
@@ -159,34 +163,47 @@ public class cardioAdapter extends RecyclerView.Adapter<cardioAdapter.cardioView
                     String sec=e4.getText().toString();
                     if(sec.length()==0)sec="0";
                     if(sec.length()==1)sec="0"+sec;
+                    int hours=Integer.parseInt(hrs),minutes=Integer.parseInt(min),seconds=Integer.parseInt(sec);
+                    if(hours>24||(hours==24&&(minutes!=0||seconds!=0))) {
+                        e2.setError("Error: Value too large");
+                        error=true;
+                    }
+                    else if(minutes>60||(minutes==60&&seconds!=0)){
+                        e3.setError("Error: Value too large");
+                        error=true;
+                    }
+                    else if(seconds>=60){
+                        e4.setError("Error: Value too large");
+                        error=true;
+                    }
                     String speed=e5.getText().toString();
                     if(speed.length()==0)speed="0";
                     String calories=e6.getText().toString();
                     if(calories.length()==0)calories="0";
                     String incline=e7.getText().toString();
                     if(incline.length()==0)incline="0";
+                    else if(Integer.parseInt(incline)>=90){
+                        e7.setError("Error: Value too large");
+                        error=true;
+                    }
                     String time=hrs+" : "+min+" : "+sec;
                     Button b=(Button)(((RelativeLayout)(v.getParent())).getChildAt(0));
                     String date=b.getText().toString();
-                    cardioData data=new cardioData(context);
-                    //add the value into the database and into the recycler view
-                    long id=data.insert(exercise.getName(),date,distance,time,speed,calories,incline);
-                    exercise.addDate(date,distance,time,speed,calories,incline,id);
-                    int position=exercise.indexOf(date);
-                    if(position!=-1){
-                        cardioAdapter.this.notifyItemChanged(position);
-                        recyclerView.scrollToPosition(position);
+                    if(!error) {
+                        cardioData data = new cardioData(context);
+                        //add the value into the database and into the recycler view
+                        long id = data.insert(exercise.getName(), date, distance, time, speed, calories, incline);
+                        exercise.addDate(date, distance, time, speed, calories, incline, id);
+                        int position = exercise.indexOf(date);
+                        if (position != -1) {
+                            cardioAdapter.this.notifyItemChanged(position);
+                            recyclerView.scrollToPosition(position);
+                        }
+                        data.close();
+                        alertDialog.dismiss();
                     }
-                    data.close();
                 }
             });
-            builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            builder.create().show();
         }
         //if an entry needs to be deleted
         else if(v.getId()==R.id.delete){
@@ -248,40 +265,62 @@ public class cardioAdapter extends RecyclerView.Adapter<cardioAdapter.cardioView
             pcal=exercise.getDates().get(pos).getValues().get(idx).getCalories();
             pinc=exercise.getDates().get(pos).getValues().get(idx).getIncline();
             phrs=ptime[0];pmin=ptime[1];psec=ptime[2];
-            //get width of diplay for appropriate width measurement for the buttons
-            int wd=(int)(metrics.widthPixels*0.25);
-
+            //layout parameters for the edit texts
+            LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-1,-2);
             boolean unit=PreferenceManager.getDefaultSharedPreferences(context).getBoolean("imperial",true);
             if(!unit){
                 pdis=convertToMetric("distance",pdis);
                 pspeed=convertToMetric("speed",pspeed);
             }
-            e1.setText(pdis);
-            e2.setText(phrs);
-            e3.setText(pmin);
-            e4.setText(psec);
-            e5.setText(pspeed);
-            e6.setText(pcal);
-            e7.setText(pinc);
+            int wd=(int)(metrics.widthPixels*0.2);
+            e1.setText(pdis);e1.setLayoutParams(params);
+            e2.setText(phrs);e2.setWidth(wd);
+            e3.setText(pmin);e3.setWidth(wd);
+            e4.setText(psec);e4.setWidth(wd);
+            e5.setText(pspeed);e5.setLayoutParams(params);
+            e6.setText(pcal);e6.setLayoutParams(params);
+            e7.setText(pinc);e7.setLayoutParams(params);
+            TextView tv1;
+            params=new LinearLayout.LayoutParams(-1,-2);
+            params.setLayoutDirection(LinearLayout.HORIZONTAL);
+            params.setMarginStart(20);
+            LinearLayout layout=new LinearLayout(context);layout.setLayoutParams(params);
             //add values as per user preference
             //distance is selected
-            if(pref[0]){ ll.addView(e1);}
+            if(pref[0]){
+                tv1=getTextView(R.string.Distance);
+                layout.addView(tv1);layout.addView(e1);
+                ll.addView(layout);
+            }
             //time is selected
             if(pref[1]) {
-                ViewGroup.LayoutParams p=new ViewGroup.LayoutParams(wd, ViewGroup.LayoutParams.WRAP_CONTENT);
-                e2.setLayoutParams(p);e3.setLayoutParams(p);e4.setLayoutParams(p);
-
-                llH.addView(e2);llH.addView(e3);llH.addView(e4);
+                TextView t1=getTextView(R.string.hrs),t2=getTextView(R.string.min),t3=getTextView(R.string.sec);
+                llH.addView(t1); llH.addView(e2);llH.addView(t2);llH.addView(e3);llH.addView(t3);llH.addView(e4);
                 llH.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 llH.setHorizontalGravity(Gravity.CENTER_HORIZONTAL);
                 ll.addView(llH);
             }
             //speed is selected
-            if(pref[2]){ll.addView(e5);}
+            if(pref[2]){
+                tv1=getTextView(R.string.Speed);
+                layout=new LinearLayout(context);layout.setLayoutParams(params);
+                layout.addView(tv1);layout.addView(e5);
+                ll.addView(layout);
+            }
             //calories is selected
-            if(pref[3]){ ll.addView(e6);}
+            if(pref[3]){
+                tv1=getTextView(R.string.Calories);
+                layout=new LinearLayout(context);layout.setLayoutParams(params);
+                layout.addView(tv1);layout.addView(e6);
+                ll.addView(layout);
+            }
             //incline is selected
-            if(pref[4]){ ll.addView(e7);}
+            if(pref[4]){
+                tv1=getTextView(R.string.Incline);
+                layout=new LinearLayout(context);layout.setLayoutParams(params);
+                layout.addView(tv1);layout.addView(e7);
+                ll.addView(layout);
+            }
             //set up the edit texts
             e1.setSingleLine();e2.setSingleLine();e3.setSingleLine();e4.setSingleLine();e5.setSingleLine();
             e6.setSingleLine();e7.setSingleLine();
@@ -292,33 +331,7 @@ public class cardioAdapter extends RecyclerView.Adapter<cardioAdapter.cardioView
             builder.setView(ll);
             builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    int position=exercise.indexOf(date);
-                    long id=exercise.getDates().get(position).getValues().get(index).getId();
-                    String ndis=e1.getText().toString().trim(),nhrs=e2.getText().toString().trim(),nmin=e3.getText().toString().trim(),
-                            nsec=e4.getText().toString().trim(),nspeed=e5.getText().toString().trim(),ncal=e6.getText().toString().trim(),
-                    ninc=e7.getText().toString().trim();
-                    if(ndis.length()==0)ndis="0";
-                    if(nhrs.length()==0)nhrs="00";else if(nhrs.length()==1)nhrs="0"+nhrs;
-                    if(nmin.length()==0)nmin="00";else if(nmin.length()==1)nmin="0"+nmin;
-                    if(nsec.length()==0)nsec="00";else if(nsec.length()==1)nsec="0"+nsec;
-                    String ntime=nhrs+" : "+nmin+" : "+nsec;
-                    if(nspeed.length()==0)nspeed="0";
-                    if (ncal.length()==0)ncal="0";
-                    if(ninc.length()==0)ninc="0";
-                    boolean unit=PreferenceManager.getDefaultSharedPreferences(context).getBoolean("imperial",true);
-                    if(!unit){
-                        ndis=convertToImperial("distance",ndis);
-                        nspeed=convertToImperial("speed",nspeed);
-                    }
-
-                    //update the values in the database and update the recycler view
-                    cardioData cd=new cardioData(context);
-                    cd.update(ndis,ntime,nspeed,ncal,ninc,id);
-                    cd.close();
-                    exercise.setDate(date,ndis,ntime,nspeed,ncal,ninc,id);
-                    cardioAdapter.this.notifyItemChanged(position);
-                }
+                public void onClick(DialogInterface dialog, int which) {}
             });
             builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override
@@ -326,29 +339,80 @@ public class cardioAdapter extends RecyclerView.Adapter<cardioAdapter.cardioView
                     dialog.dismiss();
                 }
             });
-            builder.create().show();
-        }
-        else if(v.getId()==R.id.clock){
-            //create popup window for the stopwatch with the stopwatch layout and wrap height and width
-            window=new PopupWindow(buildStopWatch(),-2,-2);
-            //set attributes of the window
-            window.setElevation(100f);
-            window.setFocusable(true);
-            window.setOutsideTouchable(true);
-
-            //set the on dismiss listener to reflect that the stopwatch has been dismissed
-            window.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            final AlertDialog dialog=builder.create();
+            dialog.show();
+            Button done=dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            done.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onDismiss() {
-                    ticking=false;
-                    timeDifference=0;
+                public void onClick(View view) {
+                    int position=exercise.indexOf(date);
+                    boolean error=false;
+                    long id=exercise.getDates().get(position).getValues().get(index).getId();
+                    String ndis=e1.getText().toString().trim(),nhrs=e2.getText().toString().trim(),nmin=e3.getText().toString().trim(),
+                            nsec=e4.getText().toString().trim(),nspeed=e5.getText().toString().trim(),ncal=e6.getText().toString().trim(),
+                            ninc=e7.getText().toString().trim();
+                    Log.d("Cardio",nhrs+"\t"+nmin+"\t"+nsec);
+                    if(ndis.length()==0)ndis="0";
+                    if(nhrs.length()==0)nhrs="00";else if(nhrs.length()==1)nhrs="0"+nhrs;
+                    if(nmin.length()==0)nmin="00";else if(nmin.length()==1)nmin="0"+nmin;
+                    if(nsec.length()==0)nsec="00";else if(nsec.length()==1)nsec="0"+nsec;
+                    int hrs=Integer.parseInt(nhrs),min=Integer.parseInt(nmin),sec=Integer.parseInt(nsec);
+                    if(hrs>24||(hrs==24&&(min!=0||sec!=0))){
+                        e2.setError("Error: Value too large");
+                        error=true;
+                    }
+                    else if(min>60||(min==60&&sec!=0)){
+                        e3.setError("Error: Value too large");
+                        error=true;
+                    }
+                    else if(sec>=60){
+                        e4.setError("Error: Value too large");
+                        error=true;
+                    }
+                    String ntime=nhrs+" : "+nmin+" : "+nsec;
+                    if(nspeed.length()==0)nspeed="0";
+                    if (ncal.length()==0)ncal="0";
+                    if(ninc.length()==0)ninc="0";
+                    else if(Integer.parseInt(ninc)>90){
+                        e7.setError("Error: Value too large");
+                        error=true;
+                    }
+                    boolean unit=PreferenceManager.getDefaultSharedPreferences(context).getBoolean("imperial",true);
+                    if(!unit){
+                        ndis=convertToImperial("distance",ndis);
+                        nspeed=convertToImperial("speed",nspeed);
+                    }
+
+
+                    //update the values in the database and update the recycler view
+                    if(!error) {
+                        cardioData cd = new cardioData(context);
+                        cd.update(ndis, ntime, nspeed, ncal, ninc, id);
+                        cd.close();
+                        exercise.setDate(date, ndis, ntime, nspeed, ncal, ninc, id);
+                        cardioAdapter.this.notifyItemChanged(position);
+                        dialog.dismiss();
+                    }
                 }
             });
-            //show the window
-            window.showAtLocation(v,Gravity.CENTER_VERTICAL,0,0);
-            //if window is showing start the stopwatch
-            if(window.isShowing())start.performClick();
         }
+
+    }
+
+    /*
+    method to obtain a text view with set features and text
+    input: id of the string
+    output: textview
+     */
+    private TextView getTextView(int id){
+        TextView tv=new TextView(context);
+        tv.setPadding(0,0,20,0);
+        String textview_text=context.getString(id);
+        SpannableString s=new SpannableString(textview_text);
+        s.setSpan(new StyleSpan(Typeface.ITALIC),0,textview_text.length(),0);
+        s.setSpan(new RelativeSizeSpan(1.2f),0,textview_text.length(),0);
+        tv.setText(s);
+        return tv;
     }
 
     /*
@@ -535,218 +599,6 @@ public class cardioAdapter extends RecyclerView.Adapter<cardioAdapter.cardioView
         if((int)result==result)return (int)result+"";
         else return result+"";
     }
-    /*
-    METHOD TO BUILD THE LAYOUT FOR THE POPUP WINDOW
-    input: null
-    output: linear layout with the stop watch views populated within
-     */
-    private LinearLayout buildStopWatch(){
-        LinearLayout layout;
-        View view=LayoutInflater.from(context).inflate(R.layout.stopwatch,null);
-        layout=(LinearLayout)view;
-        //set the timer to the xml layout
-        timer=view.findViewById(R.id.timer);
-        //set the buttons
-        start=view.findViewById(R.id.start);pause=view.findViewById(R.id.stop);
-        //set the on-click listeners for the buttons
-        start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!ticking){
-                    timer.setBase(SystemClock.elapsedRealtime()-timeDifference);
-                    timer.start();
-                    ticking=true;//clock is running
-                    //set the pause button to show 'pause'
-                    pause.setText(R.string.StopWatch_pause);
-                }
-            }
-        });
-        pause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //if the pause button was present and the clock was running then save the time difference and stop the clock
-                if(pause.getText().toString().equals("Pause")&&ticking){
-                    timeDifference=SystemClock.elapsedRealtime()-timer.getBase();
-                    timer.stop();
-                    ticking=false;//the clock has stopped
-                    //set the start button to show 'resume'
-                    start.setText(R.string.StopWatch_resume);
-                    //set the pause button to show 'reset
-                    pause.setText(R.string.StopWatch_reset);
-                }
-                else if(pause.getText().toString().equals("Reset")){
-                    //reset the timer
-                    timer.setBase(SystemClock.elapsedRealtime());
-                    timeDifference=0;
-                    //set the start button to show 'start'
-                    start.setText(R.string.StopWatch_start);
-                    //set the pause button to show 'pause'
-                    pause.setText(R.string.StopWatch_pause);
-                }
-            }
-        });
-        return layout;
-    }
-    /*
-    method to register the receiver and create the intent filter if not registered, creates and launches the notification
-    input: null
-    output: null
-     */
-    void createNotification(){
-        //if manager is null notification can't be created
-        if(manager==null)return;
 
-        //register the receiver and create the intent-filter if the receiver isn't registered
-        if(!isRegistered){
-            IntentFilter filter=new IntentFilter();
-            filter.addAction("Start");
-            filter.addAction("Pause");
-            filter.addAction("Reset");
-            filter.addAction("Resume");
-            context.registerReceiver(receiver,filter);
-            isRegistered=true;
-        }
 
-        //create the notification channel
-        NotificationChannel channel=new NotificationChannel("100","Stopwatch",NotificationManager.IMPORTANCE_LOW);
-        manager.createNotificationChannel(channel);
-        //if the timer is already running then update the time difference
-        if(ticking)
-            timeDifference=SystemClock.elapsedRealtime()-timer.getBase();
-        //set up the remote view
-        remoteViews=new RemoteViews(context.getPackageName(),R.layout.small_chronometer_layout);
-        remoteViews.setChronometer(R.id.Chronometer_timer,SystemClock.elapsedRealtime()-timeDifference,null,ticking);
-        //2 ways to create an intent to launch an activity from a notification without starting a new activity
-
-            /*Intent intent=context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
-            if(intent!=null) {
-                intent.setPackage(null).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            }*/
-        Intent intent = new Intent(context, context.getClass())
-                .setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        //build the notification
-        builder=new Notification.Builder(context,"100")
-                .setSmallIcon(R.drawable.ic_timer_black_24dp)
-                .setStyle(new Notification.DecoratedCustomViewStyle())
-                .setContentIntent(PendingIntent.getActivity(context,1,intent,0))
-                .setCustomContentView(remoteViews)
-                .setContentTitle("Stopwatch")
-                .setActions(getActions(ticking?"Start":"Resume"))
-                .setOnlyAlertOnce(true);
-
-        //launch the notification to the status bar
-        manager.notify(Notification_ID,builder.build());
-    }
-    /*
-    method to get a set of actions corresponding to the button pressed
-    input: name of the button pressed
-    output: array of actions
-     */
-    private Notification.Action[] getActions(String firstAction){
-        //create the intents for the actions
-        Intent i1 = new Intent("Start"), i2 = new Intent("Pause"), i3 = new Intent("Reset"),
-                i4=new Intent("Resume");
-        //create the pending intents for the intents
-        PendingIntent p1 = PendingIntent.getBroadcast(context, 1, i1, 0),
-                p2 = PendingIntent.getBroadcast(context, 1, i2, 0),
-                p3 = PendingIntent.getBroadcast(context, 1, i3, 0),
-                p4=PendingIntent.getBroadcast(context,1,i4,0);
-        //actions required
-        ArrayList<Notification.Action> actions=new ArrayList<>();
-        //list of all actions required
-        Notification.Action a1 = new Notification.Action.Builder(Icon.createWithResource(context, R.drawable.ic_launcher_background), "Start", p1).build(),
-                a2 = new Notification.Action.Builder(Icon.createWithResource(context, R.drawable.ic_launcher_background), "Pause", p2).build(),
-                a3 = new Notification.Action.Builder(Icon.createWithResource(context, R.drawable.ic_launcher_background), "Reset", p3).build(),
-                a4=new Notification.Action.Builder(Icon.createWithResource(context,R.drawable.ic_launcher_background),"Resume",p4).build();
-        switch (firstAction) {
-            case "Start":
-                //add action to start and pause
-                actions.add(a1);
-                actions.add(a2);
-                break;
-            case "Pause":
-                //add action to resume and reset
-                actions.add(a4);
-                actions.add(a3);
-                break;
-            case "Resume":
-                //add action to resume and pause
-                actions.add(a4);
-                actions.add(a2);
-                break;
-        }
-        return actions.toArray(new Notification.Action[actions.size()]);
-    }
-    /*
-    register a receiver for the notification
-     */
-    private BroadcastReceiver receiver=new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action=intent.getAction();
-            if(action==null||manager==null||builder==null)return;
-            switch (action){
-                case "Start":
-                    //if the clock is not ticking already
-                    if(!ticking){
-                        long base=SystemClock.elapsedRealtime();
-                        remoteViews.setChronometer(R.id.Chronometer_timer,base,null,true);
-                        builder.setCustomContentView(remoteViews);
-                        manager.notify(Notification_ID,builder.build());
-                        timer.setBase(base);
-                        start.performClick();//to keep the timer in the app i sync with the notification timer
-                    }
-                    break;
-                case "Pause":
-                    //if the clock is running and the pause button is pressed in the notification
-                    if(ticking){
-                        Chronometer cr=(Chronometer)(((ViewGroup)remoteViews.apply(context,null)).getChildAt(0));
-                        timeDifference=SystemClock.elapsedRealtime()-cr.getBase();//for new base
-                        remoteViews.setChronometer(R.id.Chronometer_timer,cr.getBase(),null,false);
-                        builder.setCustomContentView(remoteViews);
-                        builder.setActions(getActions("Pause"));//new actions names
-                        manager.notify(Notification_ID,builder.build());
-                        timer.setBase(cr.getBase());
-                        pause.performClick();//to keep the timer in sync with the notification stopwatch
-                    }
-                    break;
-                case "Reset":
-                    //reset the clock to show 0
-                    remoteViews.setChronometer(R.id.Chronometer_timer,SystemClock.elapsedRealtime(),null,ticking);
-                    timeDifference=0;
-                    builder.setCustomContentView(remoteViews);
-                    builder.setActions(getActions("Start"));
-                    manager.notify(Notification_ID,builder.build());
-                    //reset the timer as well
-                    pause.performClick();
-                    break;
-                case "Resume":
-                    //if the timer wasn't running before in the app or the notification
-                    if(!ticking) {
-                        long base = SystemClock.elapsedRealtime() - timeDifference;
-                        remoteViews.setChronometer(R.id.Chronometer_timer, base, null, true);
-                        builder.setCustomContentView(remoteViews);
-                        builder.setActions(getActions("Resume"));
-                        manager.notify(Notification_ID, builder.build());
-                        timer.setBase(base);
-                        start.performClick();//keep the app timer in sync with the notification timer
-                    }
-            }
-        }
-    };
-    //check if popup window is showing or not
-    boolean checkPopupWindow(){
-        return window!=null&&window.isShowing();
-    }
-    //when the app resumes clear the notification
-    void onResume(){
-        if(manager!=null){
-            manager.cancel(Notification_ID);
-            if(isRegistered){
-                context.unregisterReceiver(receiver);
-                isRegistered=false;
-            }
-        }
-    }
 }
