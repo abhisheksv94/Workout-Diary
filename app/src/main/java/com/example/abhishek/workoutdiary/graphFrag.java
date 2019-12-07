@@ -5,14 +5,14 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,7 +60,7 @@ public class graphFrag extends Fragment {
         cdb=new customDatabase(context);
         cd=new cardioData(context);
         Bundle b=getArguments();
-        exercise=b.getString("exercise");
+        exercise=b.getString("exercise",null);
         return view;
     }
 
@@ -80,9 +80,8 @@ public class graphFrag extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu,menu);
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -99,6 +98,7 @@ public class graphFrag extends Fragment {
                 getFragmentManager().beginTransaction().replace(R.id.frameLayout,instructions,"Instructions").
                         addToBackStack("Instructions").commit();
                 return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -114,6 +114,7 @@ public class graphFrag extends Fragment {
     //save state
     @Override
     public void onPause() {
+        super.onPause();
         String type=getArguments().getString("type");
         SharedPreferences preferences=PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor=preferences.edit();
@@ -121,10 +122,9 @@ public class graphFrag extends Fragment {
         editor.putString("graphSavedExercise",exercise);
         editor.putString("graphSavedType",type);
         editor.apply();
-        super.onPause();
     }
 
-    //creates tje graph
+    //creates the graph
     //input: user selected unit
     private void createGraph(boolean unit){
         fillcombinedChart(unit);
@@ -142,6 +142,7 @@ public class graphFrag extends Fragment {
         combinedChart.getXAxis().setAxisMaximum(combinedChart.getData().getXMax()+0.25f);
         combinedChart.getXAxis().setAxisMinimum(combinedChart.getData().getXMin()-0.25f);
         combinedChart.invalidate();
+        Log.d("Graph","here");
     }
     /*
     fill up the graph with the required data before displaying it
@@ -172,7 +173,9 @@ public class graphFrag extends Fragment {
             xAxis.setValueFormatter(new IAxisValueFormatter() {
                 @Override
                 public String getFormattedValue(float value, AxisBase axis) {
+                    if(labels.size()!=0)
                     return labels.get((int)value%labels.size());
+                    else return value+"";
 
                 }
             });

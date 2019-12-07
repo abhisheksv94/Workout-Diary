@@ -1,11 +1,10 @@
 package com.example.abhishek.workoutdiary;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -39,8 +38,6 @@ public class Instructions extends Fragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        MenuItem m1=menu.findItem(R.id.preference),m2=menu.findItem(R.id.workoutGraph),
-                m3=menu.findItem(R.id.instructions);
-        m1.setVisible(false);m2.setVisible(false);m3.setVisible(false);
+        menu.clear();
     }
 }

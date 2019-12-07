@@ -1,20 +1,19 @@
 package com.example.abhishek.workoutdiary;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.Layout;
@@ -107,13 +106,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,new Settings()).
                         addToBackStack("Settings").commit();
             }
-            else{
+            else if(exerciseList.size()>0||cardioList.size()>0){
                 if(preferences.getString("fragmentType","").equals("strength")){
-                    onNavigationItemSelected(nav.getMenu().getItem(exerciseList.indexOf(name)+1));
+                    if(exerciseList.contains(name))
+                        onNavigationItemSelected(nav.getMenu().getItem(exerciseList.indexOf(name)+1));
+                    else
+                        onNavigationItemSelected(nav.getMenu().getItem(1));
                 }
                 else{
-                    if(cardioList.indexOf(name)!=-1)
+                    if(cardioList.contains(name))
                         onNavigationItemSelected(cardioNav.getMenu().getItem(cardioList.indexOf(name)+1));
+                    else
+                        onNavigationItemSelected(cardioNav.getMenu().getItem(1));
                 }
             }
         }
@@ -125,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private int refreshMenu(String s,boolean iscardio){
         Menu menu;int index;
+
         if(!iscardio) {
             menu = nav.getMenu();
             int len = menu.size();
@@ -266,6 +271,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
+        if(exerciseList.size()==0&&cardioList.size()==0) return false;
         MenuInflater inflater=getMenuInflater();
         inflater.inflate(R.menu.menu,menu);
         menu.add(0,R.id.workoutGraph,0,"See Progress");
@@ -285,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        final android.support.v4.app.FragmentManager manager=getSupportFragmentManager();
+        final FragmentManager manager=getSupportFragmentManager();
         if(item.getItemId()==R.id.Strength||item.getItemId()==R.id.Cardio){
             return true;
         }
@@ -294,7 +300,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             manager.beginTransaction().replace(R.id.frameLayout,fragment,"Settings").addToBackStack("Settings").commit();
             return true;
         }
-        setTitle(item.getTitle());
         FrameLayout f = findViewById(R.id.frameLayout);
         f.removeAllViews();Fragment fragment;
         String exercise=item.getTitle().toString();
@@ -308,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragment.setArguments(b);
         manager.beginTransaction().replace(R.id.frameLayout,fragment,exercise).addToBackStack(
                 exercise).commit();
-        manager.addOnBackStackChangedListener(new android.support.v4.app.FragmentManager.OnBackStackChangedListener() {
+        manager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
                 int index=manager.getBackStackEntryCount()-1;

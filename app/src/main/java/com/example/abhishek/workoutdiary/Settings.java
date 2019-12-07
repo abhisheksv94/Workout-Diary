@@ -1,12 +1,11 @@
 package com.example.abhishek.workoutdiary;
 
 import android.content.SharedPreferences;
-import android.graphics.drawable.Icon;
 import android.os.Bundle;
-import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceManager;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 
 /**
@@ -22,6 +21,7 @@ public class Settings extends PreferenceFragmentCompat implements Preference.OnP
         pref1.setOnPreferenceChangeListener(this);pref2.setOnPreferenceChangeListener(this);
         Preference cal=findPreference("calories");
         cal.setOnPreferenceChangeListener(this);
+        getActivity().setTitle("Settings");
     }
 
     @Override

@@ -15,7 +15,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.method.DigitsKeyListener;
 import android.text.method.KeyListener;
@@ -23,8 +23,6 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,11 +31,9 @@ import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.RemoteViews;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,7 +111,6 @@ View.OnLongClickListener{
         holder.getButton().setText(date);
         holder.insert.setOnClickListener(this);
         holder.delete.setOnClickListener(this);
-        holder.clock.setOnClickListener(this);
         final LinearLayout ll=holder.getValueHolder();
         if(ll.getChildCount()>0)
             ll.removeAllViews();//to remove pre-existing views if any
@@ -378,7 +373,7 @@ View.OnLongClickListener{
                 }
             });
         }
-        else if(v.getId()==R.id.clock){
+//        else if(v.getId()==R.id.clock){
             //if the watch icon has been selected
 //            window=new PopupWindow(buildStopWatch(),(int)(0.6*metrics.widthPixels), -2);
 //            window.setElevation(100f);
@@ -392,31 +387,30 @@ View.OnLongClickListener{
 //                    timeDifference=0;
 //                }
 //            });
-            dialog = new AlertDialog.Builder(v.getContext())
-                    .setView(buildStopWatch())
-                    .setOnDismissListener(new AlertDialog.OnDismissListener(){
-                        @Override
-                        public void onDismiss(DialogInterface dialogInterface) {
-                            ticking = false;
-                            timeDifference = 0;
-                        }
-                    })
-                    .create();
-            dialog.show();
-
-            if(dialog.isShowing())start.performClick();
-        }
+//            dialog = new AlertDialog.Builder(v.getContext())
+//                    .setView(buildStopWatch())
+//                    .setOnDismissListener(new AlertDialog.OnDismissListener(){
+//                        @Override
+//                        public void onDismiss(DialogInterface dialogInterface) {
+//                            ticking = false;
+//                            timeDifference = 0;
+//                        }
+//                    })
+//                    .create();
+//            dialog.show();
+//
+//            if(dialog.isShowing())start.performClick();
+//        }
     }
     class customViewHolder extends RecyclerView.ViewHolder{
         private Button dateName;//contains the date
-        private ImageButton insert,delete,clock;//insert a value, delete the date, stopwatch
+        private ImageButton insert,delete;//insert a value, delete the date, stopwatch
         private LinearLayout valueHolder;//container for the entries
 
         customViewHolder(View itemView) {
             super(itemView);
             insert=itemView.findViewById(R.id.insert);
             delete=itemView.findViewById(R.id.delete);
-            clock=itemView.findViewById(R.id.clock);
             dateName=itemView.findViewById(R.id.date);
             valueHolder=itemView.findViewById(R.id.values);
         }
