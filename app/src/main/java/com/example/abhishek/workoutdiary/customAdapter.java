@@ -60,7 +60,7 @@ View.OnLongClickListener{
     private int notification_id=100;
     private Chronometer timer;
     private Button start,stop;
-    private PopupWindow window;
+    private AlertDialog dialog;
     customAdapter(Context context, RecyclerView recyclerView, Exercise exercise, DisplayMetrics metrics){
         this.context=context;
         this.recyclerView=recyclerView;
@@ -71,7 +71,7 @@ View.OnLongClickListener{
     }
     //check if popup window is showing or not
     boolean checkPopupWindow(){
-        return window!=null&&window.isShowing();
+        return dialog!=null&&dialog.isShowing();
     }
     //when the app resumes clear the notification and unregister the receiver if it is registered
     void onResume(){
@@ -380,19 +380,31 @@ View.OnLongClickListener{
         }
         else if(v.getId()==R.id.clock){
             //if the watch icon has been selected
-            window=new PopupWindow(buildStopWatch(),(int)(0.6*metrics.widthPixels), -2);
-            window.setElevation(100f);
-            window.setFocusable(true);
-            window.setOutsideTouchable(true);
-            window.showAtLocation(v,Gravity.CENTER_VERTICAL,0,0);
-            window.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                @Override
-                public void onDismiss() {
-                    ticking=false;
-                    timeDifference=0;
-                }
-            });
-            if(window.isShowing())start.performClick();
+//            window=new PopupWindow(buildStopWatch(),(int)(0.6*metrics.widthPixels), -2);
+//            window.setElevation(100f);
+//            window.setFocusable(true);
+//            window.setOutsideTouchable(true);
+//            window.showAtLocation(v,Gravity.CENTER_VERTICAL,0,0);
+//            window.setOnDismissListener(new PopupWindow.OnDismissListener() {
+//                @Override
+//                public void onDismiss() {
+//                    ticking=false;
+//                    timeDifference=0;
+//                }
+//            });
+            dialog = new AlertDialog.Builder(v.getContext())
+                    .setView(buildStopWatch())
+                    .setOnDismissListener(new AlertDialog.OnDismissListener(){
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            ticking = false;
+                            timeDifference = 0;
+                        }
+                    })
+                    .create();
+            dialog.show();
+
+            if(dialog.isShowing())start.performClick();
         }
     }
     class customViewHolder extends RecyclerView.ViewHolder{
