@@ -1,5 +1,6 @@
 package com.example.abhishek.workoutdiary;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -16,6 +17,8 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+
+import com.example.abhishek.workoutdiary.Interfaces.DrawerListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
@@ -23,6 +26,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -114,6 +118,20 @@ public class cardioFrag extends Fragment {
                     }
                 });
                 datePickerDialog.show();
+            }
+        });
+        FloatingActionButton drawerOpenButton = view.findViewById(R.id.open_drawer);
+        drawerOpenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Activity activity = getActivity();
+                if (activity == null) return;
+                try {
+                    DrawerListener d = (DrawerListener)activity;
+                    d.onDrawerOpen();
+                }catch (ClassCastException E) {
+                    Log.e("Something", "Could not cast activity");
+                }
             }
         });
         setHasOptionsMenu(true);

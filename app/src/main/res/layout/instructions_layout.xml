@@ -27,6 +27,12 @@
             android:textColor="@color/colorPrimary"
             android:textAlignment="viewStart"
             android:textSize="16sp" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom|start"
+        android:id="@+id/open_drawer"
+        android:src="@drawable/ic_open_drawer"/>
 
 </LinearLayout>
     </ScrollView>

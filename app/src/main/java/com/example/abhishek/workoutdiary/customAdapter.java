@@ -26,6 +26,7 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
@@ -226,6 +227,8 @@ View.OnLongClickListener{
             ll.setOrientation(LinearLayout.VERTICAL);
             final EditText e=new EditText(context);
             e.setSingleLine();
+            e.setEnabled(true);
+            e.requestFocus();
             final EditText e2=new EditText(context);
             e2.setSingleLine();
             ll.addView(e);ll.addView(e2);
@@ -246,7 +249,17 @@ View.OnLongClickListener{
                 }
             });
             final AlertDialog dialog=builder.create();dialog.show();
+            final InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             Button positive=dialog.getButton(AlertDialog.BUTTON_POSITIVE);final View view=v;
+            e.post(new Runnable() {
+                @Override
+                public void run() {
+
+                    if (imm != null) {
+                        imm.showSoftInput(e, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                }
+            });
             positive.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -273,6 +286,9 @@ View.OnLongClickListener{
                         }
                         db.close();
                         dialog.dismiss();
+                        if (imm != null) {
+                            imm.hideSoftInputFromWindow(e.getWindowToken(), 0);
+                        }
                     }
                 }
             });
